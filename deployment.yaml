@@ -31,16 +31,16 @@ spec:
         - configMapRef:
             name: papyrus-config
         env:
-        - name: BASE_LAYER__NODE_URL
+        - name: NODE_URL
           valueFrom:
             secretKeyRef:
               name: papyrus-secret
-              key: BASE_LAYER__NODE_URL
+              key: NODE_URL
         args:
         - --config_file
         - "/app/config/presets/$(PRESET)"
         - --base_layer.node_url
-        - "$(BASE_LAYER__NODE_URL)"
+        - "$(NODE_URL)"
       volumes:
       - name: papyrus-data
         persistentVolumeClaim:
@@ -70,7 +70,7 @@ spec:
   tls:
     - hosts:
         - papyrus.sepolia.starknet.iosis.tech
-      secretName: juno-sepolia-tls
+      secretName: papyrus-sepolia-tls
   rules:
     - host: papyrus.sepolia.starknet.iosis.tech
       http:

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: papyrus
-        image: ghcr.io/starkware-libs/papyrus:0.2.0
+        image: ghcr.io/starkware-libs/papyrus:latest
         ports:
         - containerPort: 8080
         resources:
@@ -55,7 +55,6 @@ spec:
   - port: 80
     targetPort: 8080
     protocol: TCP
-    name: http
   selector:
     app: papyrus
 ---

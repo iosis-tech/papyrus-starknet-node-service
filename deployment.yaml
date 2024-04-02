@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: papyrus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: papyrus
+  template:
+    metadata:
+      labels:
+        app: papyrus
+    spec:
+      containers:
+      - name: papyrus
+        image: ghcr.io/starkware-libs/papyrus:0.2.0
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: "1"
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi
+        volumeMounts:
+        - name: papyrus-data
+          mountPath: /app/data
+        envFrom:
+        - configMapRef:
+            name: papyrus-config
+        env:
+        - name: BASE_LAYER__NODE_URL
+          valueFrom:
+            secretKeyRef:
+              name: papyrus-secret
+              key: BASE_LAYER__NODE_URL
+        args:
+        - --config_file
+        - "/app/config/presets/$(PRESET)"
+        - --base_layer.node_url
+        - "$(BASE_LAYER__NODE_URL)"
+      volumes:
+      - name: papyrus-data
+        persistentVolumeClaim:
+          claimName: papyrus-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: papyrus-svc
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: papyrus
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: papyrus-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 0
+spec:
+  ingressClassName: nginx-ingress-prod
+  tls:
+    - hosts:
+        - papyrus.sepolia.starknet.iosis.tech
+      secretName: juno-sepolia-tls
+  rules:
+    - host: papyrus.sepolia.starknet.iosis.tech
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: papyrus-svc
+                port:
+                  number: 80

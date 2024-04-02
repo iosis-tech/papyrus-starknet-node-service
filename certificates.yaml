@@ -1,0 +1,13 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: papyrus-sepolia-cert
+spec:
+  secretName: papyrus-sepolia-tls
+
+  dnsNames:
+    - papyrus.sepolia.starknet.iosis.tech
+  issuerRef:
+    name: letsencrypt-http01
+    kind: Issuer

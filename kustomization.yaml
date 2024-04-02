@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: iosis-tech-starknet-sepolia-papyrus
+
+resources:
+  - deployment.yaml
+  - issuer.yaml
+  - certificates.yaml
+  - pvc.yaml
+
+configMapGenerator:
+  - name: papyrus-config
+    literals:
+      - RUST_LOG=info
+      - PRESET=sepolia_testnet.json
+    options:
+      disableNameSuffixHash: true
+
+secretGenerator:
+  - name: papyrus-secret
+    envs:
+      - secret.env
+    options:
+      disableNameSuffixHash: true
